@@ -272,3 +272,129 @@ ID                  NAME                  MODE                REPLICAS          
 ejytrq2dl6ph        stack_word_web        replicated          1/1                 localhost:5000/stack_wordpress:latest   *:8000->80/tcp
 mefbitfd5bd8        stack_word_mysql_db   replicated          1/1                 mysql:latest 
 ```
+
+# Ansible
+- Creating an Ansible role and a playbook to automate Docker tasks 3 and 4.
+```sh
+/root/ans/
+└── main.yml
+```
+```sh
+root@ip-172-31-39-39:/etc/ansible/roles# ansible-galaxy init wordpress
+- Role wordpress was created successfully
+```
+```sh
+/etc/ansible/roles/wordpress
+├── README.md
+├── defaults
+│   └── main.yml
+├── files
+│   ├── Dockerfile
+│   └── docker-compose.yml
+├── handlers
+│   └── main.yml
+├── meta
+│   └── main.yml
+├── tasks
+│   └── main.yml
+├── templates
+├── tests
+│   ├── inventory
+│   └── test.yml
+└── vars
+    └── main.yml
+```
+
+> vars file
+```sh
+# Vim /etc/ansible/roles/wordpress/vars/main.yml
+--
+# vars file for wordpress
+image_name: "localhost:5000/stack_wordpress"
+```
+
+> main file
+```sh
+# vim main.yml
+
+#################### Playbook for building Image ###########################
+- name: "Docker Image/Build and Image/Push"
+  hosts: localhost
+  become: true
+  roles:
+    - wordpress
+```
+
+> tasks
+```sh
+vi /etc/ansible/roles/wordpress/tasks/main.yml
+
+---
+# tasks file for wordpress
+
+- name: "Building image and pushing"
+  docker_image:
+    source: build
+    build:
+path: "/etc/ansible/roles/wordpress/files/"
+    name: "{{ image_name }}"
+    tag: "latest"
+    push: true
+    force_source: yes
+
+- name: "Build-Setp - removing image"
+  docker_image:
+    state: absent
+    name: "{{ image_name }}"
+    tag: "latest"
+
+- name: Deploy stack from a compose file
+  docker_stack:
+    state: present
+    name: stack_wordpress
+    compose:
+      - /etc/ansible/roles/wordpress/files/docker-compose.yml
+```
+
+#### Output
+
+> Running Playbook
+```sh
+root@ip-172-31-39-39:~/ans# ansible-playbook main.yml
+[WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+
+PLAY [Docker Image/Build and Image/Push] *********************************************************************************************************************
+
+TASK [Gathering Facts] ***************************************************************************************************************************************
+ok: [localhost]
+
+TASK [wordpress : Building image and pushing] ****************************************************************************************************************
+ok: [localhost]
+
+TASK [wordpress : Build-Setp - removing image] ***************************************************************************************************************
+changed: [localhost]
+
+TASK [wordpress : Deploy stack from a compose file] **********************************************************************************************************
+changed: [localhost]
+
+PLAY RECAP ***************************************************************************************************************************************************
+localhost                  : ok=4    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0 
+```
+
+```sh
+root@ip-172-31-39-39:~/ans# docker service ls
+ID                  NAME                       MODE                REPLICAS            IMAGE                                   PORTS
+toaes9sr5uap        registry                   replicated          1/1                 registry:2                              *:5000->5000/tcp
+w9kgob0wf8ex        stack_wordpress_mysql_db   replicated          1/1                 mysql:latest                            
+l28cw3635sut        stack_wordpress_web        replicated          1/1                 localhost:5000/stack_wordpress:latest   *:8000->80/tcp
+```
+
+> Stack deploy
+```sh
+root@ip-172-31-39-39:~/ans# docker stack services stack_wordpress
+ID                  NAME                       MODE                REPLICAS            IMAGE                                   PORTS
+l28cw3635sut        stack_wordpress_web        replicated          1/1                 localhost:5000/stack_wordpress:latest   *:8000->80/tcp
+w9kgob0wf8ex        stack_wordpress_mysql_db   replicated          1/1                 mysql:latest
+```
+
+
