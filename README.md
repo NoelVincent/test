@@ -275,33 +275,6 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
 ```
 
-
-
-```sh
-# vim Dockerfile
-
-FROM httpd:alpine3.15
-  
-RUN  mkdir /tmp/website/
- 
-RUN wget https://wordpress.org/latest.tar.gz -P /tmp/website/
-
-RUN tar -xvzf /tmp/website/latest.tar.gz -C /tmp/website/
-
-RUN cp -R /tmp/website/wordpress/* /usr/local/apache2/htdocs/
-
-RUN rm -rf /tmp/website && rm -rf /usr/local/apache2/htdocs/index.html
-
-RUN apk update && apk add php7 php7-fpm php7-opcache
-
-RUN chown -R www-data:www-data /usr/local/apache2/htdocs/
-
-EXPOSE 8000
-
-CMD [ "httpd-foreground" ]
-```
-
-
 - Pushing it to previously created registry.
 
 Followed the steps in the doc: https://docs.docker.com/registry/deploying/
