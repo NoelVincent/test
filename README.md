@@ -429,27 +429,6 @@ mefbitfd5bd8        stack_word_mysql_db   replicated          1/1               
 root@ip-172-31-39-39:/etc/ansible/roles# ansible-galaxy init wordpress
 - Role wordpress was created successfully
 ```
-```sh
-/etc/ansible/roles/wordpress
-├── README.md
-├── defaults
-│   └── main.yml
-├── files
-│   ├── Dockerfile
-│   └── docker-compose.yml
-├── handlers
-│   └── main.yml
-├── meta
-│   └── main.yml
-├── tasks
-│   └── main.yml
-├── templates
-├── tests
-│   ├── inventory
-│   └── test.yml
-└── vars
-    └── main.yml
-```
 
 > vars file
 ```sh
