@@ -482,7 +482,7 @@ vi /etc/ansible/roles/wordpress/tasks/main.yml
   docker_image:
     source: build
     build:
-path: "/etc/ansible/roles/wordpress/files/"
+      path: "/etc/ansible/roles/wordpress/files/"
     name: "{{ image_name }}"
     tag: "latest"
     push: true
