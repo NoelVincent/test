@@ -1,0 +1,6 @@
+#################### Playbook for building Image ###########################
+- name: "Docker Image/Build and Image/Push"
+  hosts: localhost
+  become: true
+  roles:
+    - wordpress

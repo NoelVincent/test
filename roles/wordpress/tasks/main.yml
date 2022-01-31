@@ -1,0 +1,25 @@
+---
+# tasks file for wordpress
+
+- name: "Building image and pushing"
+  docker_image:
+    source: build
+    build:
+      path: "/etc/ansible/roles/wordpress/files/"
+    name: "{{ image_name }}"
+    tag: "latest"
+    push: true
+    force_source: yes
+
+- name: "Build-Setp - removing image"
+  docker_image:
+    state: absent
+    name: "{{ image_name }}"
+    tag: "latest"
+
+- name: Deploy stack from a compose file
+  docker_stack:
+    state: present
+    name: stack_wordpress
+    compose:
+      - /etc/ansible/roles/wordpress/files/docker-compose.yml
